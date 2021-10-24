@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Url;
+// use Nette\Utils\Validators;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Validator;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +23,19 @@ Route::get('/', function () {
 
 // post de l'url puis verification de l'url dans la base de donnees
 Route::post('/', function () {
+
+    $data = ['url' => request('url')];
+
+    Validator::make($data, [
+        'url' => 'required|url'
+    ])->validate();
+
+    // if($validation->fails()){
+    //     dd("failed");
+    // } else {
+    //     dd ("success");
+    // }
+
     $url = Url::where('url', request('url'))->first();
 
     if ($url) {
