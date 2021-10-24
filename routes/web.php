@@ -14,26 +14,37 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// affichage de la vue welcome par defaut
 Route::get('/', function () {
     return view('welcome');
 });
 
+// post de l'url puis verification de l'url dans la base de donnees
 Route::post('/', function () {
     $url = Url::where('url', request('url'))->first();
 
-    if($url){
+    if ($url) {
         return view('result')->with('shortened', $url->shortened);
-    } else {
-        return redirect ('/');
+    }
+
+    $newurl = Url::create([
+        'url'       => request('url'),
+        'shortened' => Url::getUniqueShortUrl()
+    ]);
+
+    if($newurl){
+        return view('result')->with('shortened', $newurl->shortened);
     }
 });
 
-Route::get('/{shortened}',function($shortened){
+
+// quand on clique sur l'url raccourci on redirige vers l'url par defaut qui a ete initialement entree
+Route::get('/{shortened}', function ($shortened) {
     $url = Url::where('shortened', $shortened)->first();
 
-    if(! $url){
+    if (!$url) {
         return redirect('/');
     } else {
-        return redirect ($url->url);
+        return redirect($url->url); 
     }
 });
