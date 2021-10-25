@@ -29,12 +29,7 @@ Route::post('/', function () {
     Validator::make($data, [
         'url' => 'required|url'
     ])->validate();
-
-    // if($validation->fails()){
-    //     dd("failed");
-    // } else {
-    //     dd ("success");
-    // }
+    
 
     $url = Url::where('url', request('url'))->first();
 
