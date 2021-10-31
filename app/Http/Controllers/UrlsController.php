@@ -36,15 +36,9 @@ class UrlsController extends Controller
 
     private function getRecordForUrl($url)
     {
-        $record = Url::where('url', $url)->first();
-
-        if ($record) {
-            return $record;
-        }
-
-        return Url::create([
-            'url'       => $url,
-            'shortened' => Url::getUniqueShortUrl()
-        ]);
+        return Url::firstOrCreate(
+            ['url' => $url],
+            ['shortened' => Url::getUniqueShortUrl()]
+        );
     }
 }
