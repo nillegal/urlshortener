@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Url;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class UrlsController extends Controller
 {
@@ -13,41 +12,39 @@ class UrlsController extends Controller
         return view('welcome');
     }
 
-     public function store(Request $request)
+
+
+    public function store(Request $request)
     {
-        $url = $request->url;
-
-        // Validator::make($data, [
-        //     'url' => 'required|url'
-        // ])->validate();
-
         $this->validate($request, ['url' => 'required|url']);
 
+        $record = $this->getRecordForUrl($request->url);
 
-        $url = Url::where('url', request('url'))->first();
-
-        if ($url) {
-            return view('result')->with('shortened', $url->shortened);
-        }
-
-        $newurl = Url::create([
-            'url'       => request('url'),
-            'shortened' => Url::getUniqueShortUrl()
-        ]);
-
-        if ($newurl) {
-            return view('result')->with('shortened', $newurl->shortened);
-        }
+        return view('result')->with('shortened', $record->shortened);
     }
+
+    
 
     public function show($shortened)
     {
-        $url = Url::where('shortened', $shortened)->first();
+        $url = Url::where('shortened', $shortened)->firstOrFail();
 
-        if (!$url) {
-            return redirect('/');
-        } else {
-            return redirect($url->url);
+        return redirect($url->url);
+    }
+
+
+
+    private function getRecordForUrl($url)
+    {
+        $record = Url::where('url', $url)->first();
+
+        if ($record) {
+            return $record;
         }
+
+        return Url::create([
+            'url'       => $url,
+            'shortened' => Url::getUniqueShortUrl()
+        ]);
     }
 }
