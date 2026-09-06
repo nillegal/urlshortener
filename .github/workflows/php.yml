@@ -1,20 +1,21 @@
-name: PHP Composer
+name: Update Composer Dependencies
 
 on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 3 * * 1" # Every Monday at 03:00 UTC
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -26,19 +27,23 @@ jobs:
       - name: Validate composer.json
         run: composer validate --strict
 
-      - name: Cache Composer
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-
-      - name: Update all packages
+      - name: Update all Composer packages
         run: composer update --with-all-dependencies --prefer-dist --no-progress
 
-      - name: Run Laravel upgrade
-        run: php artisan upgrade
+      - name: Show updated packages
+        run: composer outdated
 
-      # - name: Run tests
-      #   run: composer test
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add composer.json composer.lock
+
+          if git diff --cached --quiet; then
+            echo "No dependency updates found."
+            exit 0
+          fi
+
+          git commit -m "chore: update Composer dependencies"
+          git push
