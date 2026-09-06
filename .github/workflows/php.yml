@@ -29,6 +29,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
 
+    - name: Update packages
+      run: composer update
+
+      
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
