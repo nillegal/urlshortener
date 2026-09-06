@@ -36,6 +36,12 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
+    - name: Update laravel
+      run: composer update laravel/framework --with-dependencies
+    
+    - name: Upgrade
+      run: php artisan upgrade
+
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 
